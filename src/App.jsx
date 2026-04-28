@@ -4,9 +4,12 @@ import SignIn from './components/SignIn.jsx';
 import SignOut from './components/SignOut.jsx';
 import Success from './components/Success.jsx';
 
+const LOGO_URL = 'https://gen2fund.com/wp-content/themes/yoo_joline/cache/Gen-II-Logo_color-51c87588.png';
+
 export default function App() {
   const [screen, setScreen] = useState('home');
   const [result, setResult] = useState(null);
+  const [logoFailed, setLogoFailed] = useState(false);
 
   const today = new Date().toLocaleDateString(undefined, {
     weekday: 'long', day: 'numeric', month: 'long',
@@ -19,10 +22,26 @@ export default function App() {
 
   return (
     <div className="app">
-      <div className="topbar">
-        <span className="mark">Reception<em>.</em></span>
-        <span>{today}</span>
-      </div>
+      <header className="topbar">
+        {logoFailed ? (
+          <span className="logo-fallback">Gen <span>II</span></span>
+        ) : (
+          <img
+            src="/logo.png"
+            alt="Gen II"
+            className="logo"
+            onError={(e) => {
+              // Try the CDN fallback once. If that also fails, show text.
+              if (e.currentTarget.src.endsWith('/logo.png')) {
+                e.currentTarget.src = LOGO_URL;
+              } else {
+                setLogoFailed(true);
+              }
+            }}
+          />
+        )}
+        <span className="meta">{today}</span>
+      </header>
 
       <main className="stage">
         {screen === 'home' && (

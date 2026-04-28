@@ -3,7 +3,9 @@ import { fetchHosts, signIn } from '../api';
 
 export default function SignIn({ onDone, onBack }) {
   const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
   const [reason, setReason] = useState('');
+  const [vehicle, setVehicle] = useState('');
   const [host, setHost] = useState('');
   const [hosts, setHosts] = useState([]);
   const [loadingHosts, setLoadingHosts] = useState(true);
@@ -19,11 +21,17 @@ export default function SignIn({ onDone, onBack }) {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!name.trim() || !reason.trim() || !host) return;
+    if (!name.trim() || !phone.trim() || !reason.trim() || !host) return;
     setSubmitting(true);
     setError(null);
     try {
-      const res = await signIn({ name: name.trim(), reason: reason.trim(), host });
+      const res = await signIn({
+        name: name.trim(),
+        phone: phone.trim(),
+        reason: reason.trim(),
+        host,
+        vehicle: vehicle.trim().toUpperCase(),
+      });
       onDone({ name: name.trim(), host, emailSent: res.emailSent });
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.');
@@ -33,21 +41,35 @@ export default function SignIn({ onDone, onBack }) {
 
   return (
     <div className="card">
-      <div className="eyebrow">Signing in</div>
-      <h1 className="display"><em>Hello</em> — who are you?</h1>
-      <p className="lede">Just a few details and we'll let your host know.</p>
+      <div className="eyebrow">Sign in</div>
+      <h1 className="display">Tell us about your visit</h1>
+      <p className="lede">A few quick details and we'll let your host know you're here.</p>
 
       {error && <div className="banner">{error}</div>}
 
       <form onSubmit={handleSubmit}>
         <div className="field">
-          <label htmlFor="name">Your full name</label>
+          <label htmlFor="name">Full name</label>
           <input
             id="name"
             autoComplete="name"
             value={name}
             onChange={e => setName(e.target.value)}
             placeholder="e.g. Alex Morgan"
+            required
+          />
+        </div>
+
+        <div className="field">
+          <label htmlFor="phone">Mobile number</label>
+          <input
+            id="phone"
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            value={phone}
+            onChange={e => setPhone(e.target.value)}
+            placeholder="07123 456 789"
             required
           />
         </div>
@@ -60,6 +82,23 @@ export default function SignIn({ onDone, onBack }) {
             onChange={e => setReason(e.target.value)}
             placeholder="e.g. 10am meeting, delivery, interview"
             required
+          />
+        </div>
+
+        <div className="field">
+          <label htmlFor="vehicle">
+            Vehicle registration <span className="hint">— if driving</span>
+          </label>
+          <input
+            id="vehicle"
+            className="uppercase"
+            value={vehicle}
+            onChange={e => setVehicle(e.target.value)}
+            placeholder="AB12 CDE"
+            maxLength={10}
+            autoCapitalize="characters"
+            autoCorrect="off"
+            spellCheck="false"
           />
         </div>
 

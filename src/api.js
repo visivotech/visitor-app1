@@ -26,11 +26,11 @@ export function fetchActiveVisitors() {
   return request(`${API_URL}?action=active`);
 }
 
-export function signIn({ name, reason, host }) {
+export function signIn({ name, phone, reason, host, vehicle }) {
   return request(API_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ action: 'signin', name, reason, host }),
+    body: JSON.stringify({ action: 'signin', name, phone, reason, host, vehicle }),
   });
 }
 

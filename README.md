@@ -74,6 +74,8 @@ In the **Hosts** tab, fill in rows with the people visitors might come to see:
 
 The **Name** column is what shows in the dropdown. The **Email** is who gets notified.
 
+> ℹ️ **Upgrading from the original version?** If you set up the Sheet before the Vehicle Reg field was added, just re-run `setupSheet` after pasting the new `Code.gs`. It detects the missing column and inserts it automatically — your existing rows are preserved.
+
 ### 5. Deploy as a Web App
 
 1. In the Apps Script editor, click **Deploy ▸ New deployment**.

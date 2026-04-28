@@ -1,18 +1,31 @@
 :root {
-  --cream:      #F2EBDC;
-  --cream-2:    #E9E0CC;
-  --ink:        #16251F;
-  --ink-soft:   #3A4A42;
-  --moss:       #2E4B3A;
-  --moss-deep:  #1F3A2B;
-  --clay:       #B24A2C;
-  --clay-soft:  #D97552;
-  --line:       rgba(22, 37, 31, 0.15);
-  --line-soft:  rgba(22, 37, 31, 0.08);
-  --shadow:     0 1px 0 rgba(22, 37, 31, 0.04), 0 12px 40px -18px rgba(22, 37, 31, 0.35);
+  /* Gen II brand */
+  --gen2-blue:       #00A7E1;
+  --gen2-blue-dark:  #0089B8;
+  --gen2-blue-deep:  #00556F;
+  --gen2-grey:       #404040;
+  --gen2-grey-soft:  #6B6B6B;
 
-  --serif: 'Instrument Serif', 'Cormorant Garamond', Georgia, serif;
-  --sans:  'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* Surfaces */
+  --bg:        #F4F7FA;
+  --surface:   #FFFFFF;
+  --surface-2: #F8FAFC;
+
+  /* Lines / shadows */
+  --line:       #E2E8F0;
+  --line-soft:  #EDF2F7;
+  --shadow-sm:  0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow:     0 1px 3px rgba(15, 23, 42, 0.06), 0 8px 24px -12px rgba(15, 23, 42, 0.12);
+  --shadow-lg:  0 4px 8px rgba(15, 23, 42, 0.06), 0 20px 50px -20px rgba(15, 23, 42, 0.18);
+
+  /* Type */
+  --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* States */
+  --error-bg:  #FEF2F2;
+  --error-fg:  #B91C1C;
+  --error-bd:  #FECACA;
+  --success:   #10B981;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -21,206 +34,257 @@ html, body, #root { height: 100%; }
 
 body {
   font-family: var(--sans);
-  font-feature-settings: 'ss01', 'cv11';
-  color: var(--ink);
-  background: var(--cream);
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  color: var(--gen2-grey);
+  background: var(--bg);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
-}
-
-/* Paper-like grain overlay for warmth */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
-  background-image:
-    radial-gradient(circle at 15% 20%, rgba(178, 74, 44, 0.04) 0, transparent 40%),
-    radial-gradient(circle at 85% 80%, rgba(46, 75, 58, 0.06) 0, transparent 45%);
 }
 
 .app {
   position: relative;
-  z-index: 2;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
+/* ───── Top bar with logo ────────────────────────────────────── */
 .topbar {
-  padding: 28px 40px 0;
+  padding: 24px 40px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 13px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
 }
-.topbar .mark { font-family: var(--serif); font-size: 22px; letter-spacing: 0; text-transform: none; color: var(--ink); }
-.topbar .mark em { font-style: italic; color: var(--clay); }
+.topbar .logo {
+  height: 36px;
+  width: auto;
+  display: block;
+}
+.topbar .logo-fallback {
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: -0.01em;
+  color: var(--gen2-blue);
+}
+.topbar .logo-fallback span { color: var(--gen2-grey); font-weight: 600; }
+.topbar .meta {
+  font-size: 13px;
+  color: var(--gen2-grey-soft);
+  font-weight: 500;
+}
 
+/* ───── Stage / cards ───────────────────────────────────────── */
 .stage {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px 24px 60px;
+  padding: 48px 24px;
 }
 
 .card {
   width: 100%;
-  max-width: 560px;
-  background: #FBF6E8;
+  max-width: 540px;
+  background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 28px;
-  padding: 56px 48px;
+  border-radius: 16px;
+  padding: 48px 44px;
   box-shadow: var(--shadow);
-  position: relative;
-  animation: rise 420ms cubic-bezier(.2,.7,.2,1) both;
+  animation: rise 320ms cubic-bezier(.2,.7,.2,1) both;
 }
 
 @keyframes rise {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ───── Typography ──────────────────────────────────────────── */
 .eyebrow {
-  font-size: 11px;
-  letter-spacing: 0.22em;
+  font-size: 12px;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--clay);
-  font-weight: 500;
-  margin-bottom: 18px;
+  color: var(--gen2-blue);
+  font-weight: 600;
+  margin-bottom: 16px;
 }
 
 h1.display {
-  font-family: var(--serif);
-  font-weight: 400;
-  font-size: clamp(48px, 8vw, 76px);
-  line-height: 1.02;
-  letter-spacing: -0.01em;
-  color: var(--ink);
-  margin-bottom: 14px;
+  font-size: clamp(28px, 4.5vw, 36px);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+  color: #0F172A;
+  margin-bottom: 12px;
 }
-h1.display em { font-style: italic; color: var(--clay); }
 
 p.lede {
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.55;
-  color: var(--ink-soft);
-  max-width: 44ch;
-  margin-bottom: 36px;
+  color: var(--gen2-grey-soft);
+  margin-bottom: 32px;
+  max-width: 46ch;
 }
 
+/* ───── Home choice buttons ─────────────────────────────────── */
 .choices {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  margin-top: 8px;
+  gap: 12px;
 }
 
 .choice {
   appearance: none;
-  border: 1px solid var(--line);
-  background: var(--cream);
-  color: var(--ink);
+  border: 1.5px solid var(--line);
+  background: var(--surface-2);
+  color: #0F172A;
   text-align: left;
-  padding: 24px 22px;
-  border-radius: 18px;
+  padding: 28px 24px;
+  border-radius: 12px;
   cursor: pointer;
   font-family: var(--sans);
-  transition: transform .18s ease, border-color .18s ease, background .18s ease;
+  transition: all 0.18s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.choice:hover {
+  border-color: var(--gen2-blue);
+  background: var(--surface);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+}
+.choice:active { transform: translateY(0); }
+.choice .big {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.choice .sub {
+  font-size: 13px;
+  color: var(--gen2-grey-soft);
+  font-weight: 400;
+}
+.choice .arrow {
+  margin-top: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--gen2-blue);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.18s ease;
+}
+.choice:hover .arrow { transform: translateX(4px); }
+.choice .arrow svg { width: 16px; height: 16px; }
+
+/* ───── Forms ───────────────────────────────────────────────── */
+.field {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  margin-bottom: 18px;
+  position: relative;
 }
-.choice:hover { transform: translateY(-2px); border-color: var(--ink); background: #EEE5D0; }
-.choice:active { transform: translateY(0); }
-.choice .big { font-family: var(--serif); font-size: 28px; line-height: 1; }
-.choice .big em { color: var(--clay); font-style: italic; }
-.choice .sub { font-size: 13px; color: var(--ink-soft); letter-spacing: 0.01em; }
-
-/* Forms */
-.field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; position: relative; }
 .field label {
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: var(--ink-soft);
+  font-size: 13px;
+  color: #0F172A;
   font-weight: 500;
 }
-.field input, .field select, .field textarea {
+.field .hint {
+  font-size: 12px;
+  color: var(--gen2-grey-soft);
+  font-weight: 400;
+}
+.field input,
+.field select,
+.field textarea {
   font-family: var(--sans);
-  font-size: 17px;
-  background: var(--cream);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 16px 18px;
-  color: var(--ink);
+  font-size: 15px;
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  padding: 12px 14px;
+  color: #0F172A;
   outline: none;
-  transition: border-color .15s ease, background .15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
-.field input:focus, .field select:focus, .field textarea:focus {
-  border-color: var(--moss);
-  background: #FBF6E8;
+.field input::placeholder { color: #94A3B8; }
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--gen2-blue);
+  box-shadow: 0 0 0 3px rgba(0, 167, 225, 0.15);
 }
-.field textarea { resize: vertical; min-height: 84px; font-family: var(--sans); }
+
+.field input.uppercase {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
 
 .field select {
   appearance: none;
+  cursor: pointer;
   background-image:
-    linear-gradient(45deg, transparent 50%, var(--ink-soft) 50%),
-    linear-gradient(135deg, var(--ink-soft) 50%, transparent 50%);
-  background-position:
-    calc(100% - 22px) 50%,
-    calc(100% - 16px) 50%;
-  background-size: 6px 6px;
+    linear-gradient(45deg, transparent 50%, var(--gen2-grey-soft) 50%),
+    linear-gradient(135deg, var(--gen2-grey-soft) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%;
+  background-size: 5px 5px;
   background-repeat: no-repeat;
-  padding-right: 42px;
+  padding-right: 36px;
 }
 
-/* Buttons */
-.row { display: flex; gap: 12px; margin-top: 28px; }
-button.primary, button.ghost {
+/* ───── Buttons ─────────────────────────────────────────────── */
+.row {
+  display: flex;
+  gap: 10px;
+  margin-top: 28px;
+}
+button.primary,
+button.ghost {
   flex: 1;
   font-family: var(--sans);
-  font-size: 16px;
-  font-weight: 500;
-  padding: 18px 24px;
-  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 14px 20px;
+  border-radius: 8px;
   cursor: pointer;
-  border: 1px solid transparent;
-  transition: transform .15s ease, background .15s ease, border-color .15s ease;
-  letter-spacing: 0.01em;
+  border: 1.5px solid transparent;
+  transition: all 0.15s ease;
+  letter-spacing: -0.005em;
 }
 button.primary {
-  background: var(--moss-deep);
-  color: var(--cream);
+  background: var(--gen2-blue);
+  color: white;
 }
-button.primary:hover { background: #14261A; }
-button.primary:disabled { opacity: .55; cursor: not-allowed; }
+button.primary:hover { background: var(--gen2-blue-dark); }
+button.primary:disabled { opacity: 0.5; cursor: not-allowed; }
 button.ghost {
   background: transparent;
-  color: var(--ink);
+  color: var(--gen2-grey);
   border-color: var(--line);
 }
-button.ghost:hover { border-color: var(--ink); }
+button.ghost:hover { border-color: var(--gen2-grey-soft); background: var(--surface-2); }
 
-/* Autocomplete */
+/* ───── Autocomplete suggestions ────────────────────────────── */
 .suggest {
   position: absolute;
   top: calc(100% + 4px);
-  left: 0; right: 0;
-  background: #FBF6E8;
+  left: 0;
+  right: 0;
+  background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 12px;
-  box-shadow: var(--shadow);
+  border-radius: 8px;
+  box-shadow: var(--shadow-lg);
   max-height: 240px;
   overflow-y: auto;
   z-index: 20;
-  padding: 6px;
+  padding: 4px;
 }
 .suggest button {
   display: block;
@@ -228,55 +292,78 @@ button.ghost:hover { border-color: var(--ink); }
   text-align: left;
   background: transparent;
   border: none;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: #0F172A;
+  cursor: pointer;
+  font-weight: 500;
+}
+.suggest button:hover,
+.suggest button.active {
+  background: rgba(0, 167, 225, 0.08);
+  color: var(--gen2-blue-deep);
+}
+.suggest .meta {
+  font-size: 12px;
+  color: var(--gen2-grey-soft);
+  margin-top: 2px;
+  font-weight: 400;
+}
+.suggest .empty {
+  padding: 14px;
+  color: var(--gen2-grey-soft);
+  font-size: 13px;
+  text-align: center;
+}
+
+/* ───── Banner / errors ─────────────────────────────────────── */
+.banner {
+  background: var(--error-bg);
+  border: 1px solid var(--error-bd);
+  color: var(--error-fg);
   padding: 12px 14px;
   border-radius: 8px;
-  font-family: var(--sans);
-  font-size: 15px;
-  color: var(--ink);
-  cursor: pointer;
-}
-.suggest button:hover, .suggest button.active { background: var(--cream-2); }
-.suggest .meta { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
-.suggest .empty { padding: 14px; color: var(--ink-soft); font-size: 14px; text-align: center; }
-
-/* Banner / errors */
-.banner {
-  background: #F6E6DC;
-  border: 1px solid rgba(178, 74, 44, 0.3);
-  color: var(--clay);
-  padding: 12px 16px;
-  border-radius: 10px;
   font-size: 14px;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
-/* Success screen */
-.success-big { text-align: center; padding: 20px 0; }
+/* ───── Success screen ──────────────────────────────────────── */
+.success-big { text-align: center; }
 .success-big .ring {
-  width: 88px; height: 88px; border-radius: 50%;
-  border: 1.5px solid var(--moss);
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.12);
   display: flex; align-items: center; justify-content: center;
-  margin: 0 auto 28px;
-  animation: pop 420ms cubic-bezier(.2,.7,.2,1) both;
+  margin: 0 auto 24px;
+  animation: pop 380ms cubic-bezier(.2,.7,.2,1) both;
 }
-.success-big .ring svg { width: 36px; height: 36px; color: var(--moss); }
+.success-big .ring svg { width: 32px; height: 32px; color: var(--success); }
+.success-big .lede { margin: 0 auto 28px; }
+.success-big .primary { max-width: 220px; margin: 0 auto; }
+
 @keyframes pop {
-  from { transform: scale(.85); opacity: 0; }
+  from { transform: scale(0.8); opacity: 0; }
   to   { transform: scale(1);   opacity: 1; }
 }
 
+/* ───── Footer ──────────────────────────────────────────────── */
 .footer {
   text-align: center;
   font-size: 12px;
-  color: var(--ink-soft);
-  padding: 20px;
-  letter-spacing: 0.02em;
+  color: var(--gen2-grey-soft);
+  padding: 24px;
+  border-top: 1px solid var(--line);
+  background: var(--surface);
 }
 
-/* Small screens / tablet-friendly */
+/* ───── Responsive ──────────────────────────────────────────── */
 @media (max-width: 540px) {
-  .topbar { padding: 20px 22px 0; }
-  .card { padding: 40px 28px; border-radius: 22px; }
+  .topbar { padding: 18px 20px; }
+  .topbar .logo { height: 28px; }
+  .stage { padding: 32px 16px; }
+  .card { padding: 32px 24px; border-radius: 12px; }
   .choices { grid-template-columns: 1fr; }
-  .row { flex-direction: column; }
+  .row { flex-direction: column-reverse; }
 }

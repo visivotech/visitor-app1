@@ -7,7 +7,7 @@ export default function SignOut({ onDone, onBack }) {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
-  const [focused, setFocused] = useState(false);
+  const [suggestOpen, setSuggestOpen] = useState(false);
   const [cursor, setCursor] = useState(0);
   const wrapRef = useRef(null);
 
@@ -21,15 +21,16 @@ export default function SignOut({ onDone, onBack }) {
   // Close suggestions when clicking outside
   useEffect(() => {
     function onDocClick(e) {
-      if (wrapRef.current && !wrapRef.current.contains(e.target)) setFocused(false);
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) setSuggestOpen(false);
     }
     document.addEventListener('mousedown', onDocClick);
     return () => document.removeEventListener('mousedown', onDocClick);
   }, []);
 
+  // Only filter once the user has typed at least one character.
   const matches = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return active;
+    if (!q) return [];
     return active.filter(v => v.name.toLowerCase().includes(q));
   }, [query, active]);
 
@@ -54,28 +55,41 @@ export default function SignOut({ onDone, onBack }) {
     handleSignOut(target);
   }
 
+  function handleChange(e) {
+    setQuery(e.target.value);
+    setCursor(0);
+    // Open suggestions only when there's something to filter on
+    setSuggestOpen(e.target.value.trim().length > 0);
+  }
+
   function handleKey(e) {
-    if (!focused || matches.length === 0) return;
-    if (e.key === 'ArrowDown') { e.preventDefault(); setCursor(c => Math.min(c + 1, matches.length - 1)); }
-    else if (e.key === 'ArrowUp') { e.preventDefault(); setCursor(c => Math.max(c - 1, 0)); }
-    else if (e.key === 'Enter' && matches[cursor]) {
+    if (!suggestOpen || matches.length === 0) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setCursor(c => Math.min(c + 1, matches.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setCursor(c => Math.max(c - 1, 0));
+    } else if (e.key === 'Enter' && matches[cursor]) {
       e.preventDefault();
       setQuery(matches[cursor].name);
-      setFocused(false);
+      setSuggestOpen(false);
       handleSignOut(matches[cursor].name);
+    } else if (e.key === 'Escape') {
+      setSuggestOpen(false);
     }
   }
 
   return (
     <div className="card">
-      <div className="eyebrow">Signing out</div>
-      <h1 className="display">Safe <em>travels</em>.</h1>
+      <div className="eyebrow">Sign out</div>
+      <h1 className="display">Have a great rest of your day</h1>
       <p className="lede">
         {loading
           ? 'Looking up today\'s visitors…'
           : active.length === 0
             ? 'There are no active visitors to sign out right now.'
-            : 'Start typing your name — we\'ll find you.'}
+            : 'Start typing your name and we\'ll find you.'}
       </p>
 
       {error && <div className="banner">{error}</div>}
@@ -86,15 +100,14 @@ export default function SignOut({ onDone, onBack }) {
           <input
             id="sname"
             value={query}
-            onChange={e => { setQuery(e.target.value); setCursor(0); setFocused(true); }}
-            onFocus={() => setFocused(true)}
+            onChange={handleChange}
             onKeyDown={handleKey}
             placeholder="Start typing…"
             autoComplete="off"
             required
             disabled={loading || submitting}
           />
-          {focused && !loading && (
+          {suggestOpen && !loading && (
             <div className="suggest" role="listbox">
               {matches.length === 0 ? (
                 <div className="empty">No match for "{query}"</div>
@@ -106,7 +119,7 @@ export default function SignOut({ onDone, onBack }) {
                   onMouseEnter={() => setCursor(i)}
                   onClick={() => {
                     setQuery(v.name);
-                    setFocused(false);
+                    setSuggestOpen(false);
                     handleSignOut(v.name);
                   }}
                 >

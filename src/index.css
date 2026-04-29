@@ -348,48 +348,57 @@ button.ghost:hover { border-color: var(--gen2-grey-soft); background: var(--surf
   to   { transform: scale(1);   opacity: 1; }
 }
 
+/* ───── Powered by (fixed, bottom-left) ─────────────────────── */
+.powered-by {
+  position: fixed;
+  left: 32px;
+  bottom: 28px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  text-decoration: none;
+  color: var(--gen2-grey-soft);
+  z-index: 10;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.powered-by:hover { opacity: 0.75; transform: translateY(-1px); }
+.powered-by-label {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--gen2-grey-soft);
+  padding-left: 2px;
+}
+.powered-by img {
+  height: 64px;
+  width: auto;
+  display: block;
+}
+
 /* ───── Footer ──────────────────────────────────────────────── */
 .footer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 12px;
+  text-align: center;
   font-size: 12px;
   color: var(--gen2-grey-soft);
   padding: 20px 24px;
   border-top: 1px solid var(--line);
   background: var(--surface);
 }
-.footer .powered-by {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  text-decoration: none;
-  color: var(--gen2-grey-soft);
-  transition: opacity 0.15s ease;
-}
-.footer .powered-by:hover { opacity: 0.7; }
-.footer .powered-by img {
-  height: 22px;
-  width: auto;
-  display: block;
-}
-.footer .footer-divider {
-  color: var(--line);
-  font-weight: 700;
-}
-.footer .emergency {
-  font-size: 12px;
-  color: var(--gen2-grey-soft);
-}
 
 /* ───── Responsive ──────────────────────────────────────────── */
 @media (max-width: 540px) {
   .topbar { padding: 18px 20px; }
   .topbar .logo { height: 28px; }
-  .stage { padding: 32px 16px; }
+  .stage { padding: 32px 16px 120px; } /* extra bottom padding to clear powered-by */
   .card { padding: 32px 24px; border-radius: 12px; }
   .choices { grid-template-columns: 1fr; }
   .row { flex-direction: column-reverse; }
+  .powered-by {
+    left: 20px;
+    bottom: 70px; /* sit above the footer on mobile so they don't overlap */
+  }
+  .powered-by img { height: 44px; }
+  .powered-by-label { font-size: 10px; }
 }

@@ -4,11 +4,9 @@
 // CORS preflights, so we POST with Content-Type: text/plain (a "simple
 // request" in CORS terms) and parse JSON on the server side.
 
-const API_URL = import.meta.env.VITE_API_URL;
-
-if (!API_URL) {
-  console.warn('VITE_API_URL is not set. Set it in .env.local or in Amplify env variables.');
-}
+// Hardcoded for simplicity. To change which Apps Script deployment / Sheet
+// the app talks to, just update this URL and re-upload to GitHub.
+const API_URL = 'https://script.google.com/macros/s/AKfycbw0Gk2eplWDPrylu-lYMKP4AytyHn8JsUZaueH5NAJH-wjx654bVCPcPoXhW99PxHLx/exec';
 
 async function request(url, options = {}) {
   const res = await fetch(url, options);

@@ -51,7 +51,7 @@ body {
 
 /* ───── Top bar with logo ────────────────────────────────────── */
 .topbar {
-  padding: 24px 40px;
+  padding: 32px 56px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -59,19 +59,19 @@ body {
   background: var(--surface);
 }
 .topbar .logo {
-  height: 36px;
+  height: 48px;
   width: auto;
   display: block;
 }
 .topbar .logo-fallback {
   font-weight: 700;
-  font-size: 22px;
+  font-size: 28px;
   letter-spacing: -0.01em;
   color: var(--gen2-blue);
 }
 .topbar .logo-fallback span { color: var(--gen2-grey); font-weight: 600; }
 .topbar .meta {
-  font-size: 13px;
+  font-size: 15px;
   color: var(--gen2-grey-soft);
   font-weight: 500;
 }
@@ -87,11 +87,11 @@ body {
 
 .card {
   width: 100%;
-  max-width: 540px;
+  max-width: 820px;
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 16px;
-  padding: 48px 44px;
+  border-radius: 22px;
+  padding: 80px 72px;
   box-shadow: var(--shadow);
   animation: rise 320ms cubic-bezier(.2,.7,.2,1) both;
 }
@@ -112,27 +112,27 @@ body {
 }
 
 h1.display {
-  font-size: clamp(28px, 4.5vw, 36px);
-  line-height: 1.15;
+  font-size: clamp(36px, 4vw, 56px);
+  line-height: 1.1;
   letter-spacing: -0.02em;
   font-weight: 700;
   color: #0F172A;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 p.lede {
-  font-size: 15px;
+  font-size: 18px;
   line-height: 1.55;
   color: var(--gen2-grey-soft);
-  margin-bottom: 32px;
-  max-width: 46ch;
+  margin-bottom: 40px;
+  max-width: 56ch;
 }
 
 /* ───── Home choice buttons ─────────────────────────────────── */
 .choices {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 16px;
 }
 
 .choice {
@@ -141,14 +141,14 @@ p.lede {
   background: var(--surface-2);
   color: #0F172A;
   text-align: left;
-  padding: 28px 24px;
-  border-radius: 12px;
+  padding: 44px 36px;
+  border-radius: 16px;
   cursor: pointer;
   font-family: var(--sans);
   transition: all 0.18s ease;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 .choice:hover {
   border-color: var(--gen2-blue);
@@ -158,19 +158,19 @@ p.lede {
 }
 .choice:active { transform: translateY(0); }
 .choice .big {
-  font-size: 20px;
+  font-size: 30px;
   font-weight: 600;
   letter-spacing: -0.01em;
 }
 .choice .sub {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--gen2-grey-soft);
   font-weight: 400;
 }
 .choice .arrow {
-  margin-top: 12px;
-  width: 36px;
-  height: 36px;
+  margin-top: 20px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   background: var(--gen2-blue);
   color: white;
@@ -180,23 +180,23 @@ p.lede {
   transition: transform 0.18s ease;
 }
 .choice:hover .arrow { transform: translateX(4px); }
-.choice .arrow svg { width: 16px; height: 16px; }
+.choice .arrow svg { width: 22px; height: 22px; }
 
 /* ───── Forms ───────────────────────────────────────────────── */
 .field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-bottom: 18px;
+  gap: 10px;
+  margin-bottom: 26px;
   position: relative;
 }
 .field label {
-  font-size: 13px;
+  font-size: 15px;
   color: #0F172A;
   font-weight: 500;
 }
 .field .hint {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--gen2-grey-soft);
   font-weight: 400;
 }
@@ -204,11 +204,11 @@ p.lede {
 .field select,
 .field textarea {
   font-family: var(--sans);
-  font-size: 15px;
+  font-size: 19px;
   background: var(--surface);
   border: 1.5px solid var(--line);
-  border-radius: 8px;
-  padding: 12px 14px;
+  border-radius: 12px;
+  padding: 20px 22px;
   color: #0F172A;
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -242,17 +242,17 @@ p.lede {
 /* ───── Buttons ─────────────────────────────────────────────── */
 .row {
   display: flex;
-  gap: 10px;
-  margin-top: 28px;
+  gap: 14px;
+  margin-top: 36px;
 }
 button.primary,
 button.ghost {
   flex: 1;
   font-family: var(--sans);
-  font-size: 15px;
+  font-size: 19px;
   font-weight: 600;
-  padding: 14px 20px;
-  border-radius: 8px;
+  padding: 22px 28px;
+  border-radius: 12px;
   cursor: pointer;
   border: 1.5px solid transparent;
   transition: all 0.15s ease;
@@ -348,15 +348,15 @@ button.ghost:hover { border-color: var(--gen2-grey-soft); background: var(--surf
   to   { transform: scale(1);   opacity: 1; }
 }
 
-/* ───── Powered by (fixed, bottom-left) ─────────────────────── */
+/* ───── Powered by (fixed, bottom-left, above footer) ───────── */
 .powered-by {
   position: fixed;
-  left: 32px;
-  bottom: 28px;
+  left: 48px;
+  bottom: 100px; /* sits comfortably above the footer */
   display: inline-flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 6px;
+  gap: 10px;
   text-decoration: none;
   color: var(--gen2-grey-soft);
   z-index: 10;
@@ -364,15 +364,15 @@ button.ghost:hover { border-color: var(--gen2-grey-soft); background: var(--surf
 }
 .powered-by:hover { opacity: 0.75; transform: translateY(-1px); }
 .powered-by-label {
-  font-size: 11px;
-  letter-spacing: 0.16em;
+  font-size: 13px;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   font-weight: 600;
   color: var(--gen2-grey-soft);
   padding-left: 2px;
 }
 .powered-by img {
-  height: 64px;
+  height: 120px;
   width: auto;
   display: block;
 }
@@ -380,9 +380,9 @@ button.ghost:hover { border-color: var(--gen2-grey-soft); background: var(--surf
 /* ───── Footer ──────────────────────────────────────────────── */
 .footer {
   text-align: center;
-  font-size: 12px;
+  font-size: 14px;
   color: var(--gen2-grey-soft);
-  padding: 20px 24px;
+  padding: 28px 24px;
   border-top: 1px solid var(--line);
   background: var(--surface);
 }
@@ -391,14 +391,14 @@ button.ghost:hover { border-color: var(--gen2-grey-soft); background: var(--surf
 @media (max-width: 540px) {
   .topbar { padding: 18px 20px; }
   .topbar .logo { height: 28px; }
-  .stage { padding: 32px 16px 120px; } /* extra bottom padding to clear powered-by */
-  .card { padding: 32px 24px; border-radius: 12px; }
+  .stage { padding: 32px 16px 180px; } /* extra bottom padding to clear powered-by */
+  .card { padding: 36px 24px; border-radius: 14px; }
   .choices { grid-template-columns: 1fr; }
   .row { flex-direction: column-reverse; }
   .powered-by {
     left: 20px;
-    bottom: 70px; /* sit above the footer on mobile so they don't overlap */
+    bottom: 76px;
   }
-  .powered-by img { height: 44px; }
+  .powered-by img { height: 60px; }
   .powered-by-label { font-size: 10px; }
 }

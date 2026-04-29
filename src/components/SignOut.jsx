@@ -1,6 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { fetchActiveVisitors, signOut } from '../api';
 
+/** Capitalise first letter of each word; only re-cases at boundaries. */
+function titleCase(value) {
+  if (!value) return value;
+  return value.replace(/(^|\s)([a-z])/g, (_, boundary, letter) => boundary + letter.toUpperCase());
+}
+
 export default function SignOut({ onDone, onBack }) {
   const [query, setQuery] = useState('');
   const [active, setActive] = useState([]);
@@ -62,6 +68,12 @@ export default function SignOut({ onDone, onBack }) {
     setSuggestOpen(e.target.value.trim().length > 0);
   }
 
+  function handleBlur(e) {
+    // Tidy up casing once they've finished typing.
+    // Don't do it if they're picking a suggestion (handled separately).
+    setQuery(titleCase(e.target.value));
+  }
+
   function handleKey(e) {
     if (!suggestOpen || matches.length === 0) return;
     if (e.key === 'ArrowDown') {
@@ -101,9 +113,11 @@ export default function SignOut({ onDone, onBack }) {
             id="sname"
             value={query}
             onChange={handleChange}
+            onBlur={handleBlur}
             onKeyDown={handleKey}
             placeholder="Start typing…"
             autoComplete="off"
+            autoCapitalize="words"
             required
             disabled={loading || submitting}
           />

@@ -1,6 +1,19 @@
 import { useEffect, useState } from 'react';
 import { fetchHosts, signIn } from '../api';
 
+/**
+ * Capitalise the first letter of each word.
+ * Only re-cases letters at known boundaries (start of string, after a space)
+ * so we never disturb the user's typing position elsewhere in the field.
+ *
+ * Trade-off: this overrides legitimate special casing like "McDonald" or
+ * "O'Brien". Reception staff can fix those manually if needed.
+ */
+function titleCase(value) {
+  if (!value) return value;
+  return value.replace(/(^|\s)([a-z])/g, (_, boundary, letter) => boundary + letter.toUpperCase());
+}
+
 export default function SignIn({ onDone, onBack }) {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -53,8 +66,10 @@ export default function SignIn({ onDone, onBack }) {
           <input
             id="name"
             autoComplete="name"
+            autoCapitalize="words"
             value={name}
             onChange={e => setName(e.target.value)}
+            onBlur={e => setName(titleCase(e.target.value))}
             placeholder="e.g. Alex Morgan"
             required
           />

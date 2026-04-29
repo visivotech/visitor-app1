@@ -174,22 +174,20 @@ function notifyHost(hostName, visitorName, phone, reason, vehicle, arrivalTime) 
     const email = String(match[1]).trim();
     const firstName = hostName.split(' ')[0];
     const subject = `${visitorName} has arrived at reception`;
-    const vehicleLine = vehicle ? `\n    Vehicle:  ${vehicle}` : '';
     const plainBody =
 `Hi ${firstName},
 
 Your visitor has just signed in at reception:
 
     Visitor:  ${visitorName}
-    Phone:    ${phone}
-    Reason:   ${reason}${vehicleLine}
+    Reason:   ${reason}
     Arrived:  ${arrivalTime}
 
 — ${COMPANY_NAME} Reception
 Powered by Saluto · saluto.space`;
 
     const htmlBody = buildHtmlEmail({
-      firstName, visitorName, phone, reason, vehicle, arrivalTime,
+      firstName, visitorName, reason, arrivalTime,
     });
 
     // Try Resend first
@@ -258,11 +256,8 @@ function sendViaResend({ to, subject, text, html }) {
 }
 
 /** Simple branded HTML version of the host email. */
-function buildHtmlEmail({ firstName, visitorName, phone, reason, vehicle, arrivalTime }) {
+function buildHtmlEmail({ firstName, visitorName, reason, arrivalTime }) {
   const safe = (s) => String(s || '').replace(/[<>&]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]));
-  const vehicleRow = vehicle
-    ? `<tr><td style="padding:6px 0;color:#6B6B6B;width:90px;">Vehicle</td><td style="padding:6px 0;color:#0F172A;font-weight:500;">${safe(vehicle)}</td></tr>`
-    : '';
 
   return `<!doctype html>
 <html><body style="margin:0;padding:24px;background:#F4F7FA;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#0F172A;">
@@ -273,9 +268,7 @@ function buildHtmlEmail({ firstName, visitorName, phone, reason, vehicle, arriva
       <p style="margin:0 0 20px;font-size:15px;line-height:1.55;color:#404040;">Hi ${safe(firstName)}, ${safe(visitorName)} has just signed in at reception.</p>
       <table cellpadding="0" cellspacing="0" border="0" width="100%" style="font-size:14px;border-top:1px solid #EDF2F7;margin-top:8px;">
         <tr><td style="padding:14px 0 6px;color:#6B6B6B;width:90px;">Visitor</td><td style="padding:14px 0 6px;color:#0F172A;font-weight:500;">${safe(visitorName)}</td></tr>
-        <tr><td style="padding:6px 0;color:#6B6B6B;">Phone</td><td style="padding:6px 0;color:#0F172A;font-weight:500;">${safe(phone)}</td></tr>
         <tr><td style="padding:6px 0;color:#6B6B6B;">Reason</td><td style="padding:6px 0;color:#0F172A;font-weight:500;">${safe(reason)}</td></tr>
-        ${vehicleRow}
         <tr><td style="padding:6px 0 14px;color:#6B6B6B;">Arrived</td><td style="padding:6px 0 14px;color:#0F172A;font-weight:500;">${safe(arrivalTime)}</td></tr>
       </table>
     </td></tr>
@@ -358,9 +351,7 @@ function testResend() {
   const html = buildHtmlEmail({
     firstName: 'Test',
     visitorName: 'Saluto Test Visitor',
-    phone: '07000 000 000',
     reason: 'Verifying email delivery',
-    vehicle: 'TEST 1',
     arrivalTime: Utilities.formatDate(new Date(), TIMEZONE, 'HH:mm'),
   });
 

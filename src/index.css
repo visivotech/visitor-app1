@@ -350,12 +350,38 @@ button.ghost:hover { border-color: var(--gen2-grey-soft); background: var(--surf
 
 /* ───── Footer ──────────────────────────────────────────────── */
 .footer {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
   font-size: 12px;
   color: var(--gen2-grey-soft);
-  padding: 24px;
+  padding: 20px 24px;
   border-top: 1px solid var(--line);
   background: var(--surface);
+}
+.footer .powered-by {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: var(--gen2-grey-soft);
+  transition: opacity 0.15s ease;
+}
+.footer .powered-by:hover { opacity: 0.7; }
+.footer .powered-by img {
+  height: 22px;
+  width: auto;
+  display: block;
+}
+.footer .footer-divider {
+  color: var(--line);
+  font-weight: 700;
+}
+.footer .emergency {
+  font-size: 12px;
+  color: var(--gen2-grey-soft);
 }
 
 /* ───── Responsive ──────────────────────────────────────────── */

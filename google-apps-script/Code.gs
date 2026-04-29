@@ -1,10 +1,18 @@
 /**
  * Visitor Registration — Google Apps Script backend
  * ---------------------------------------------------
- * Deploy this as a Web App (Deploy ▸ New deployment ▸ Web app).
- * - Execute as: Me
- * - Who has access: Anyone
- * Copy the resulting /exec URL into the React app's VITE_API_URL.
+ * Saluto · saluto.space
+ *
+ * Deploy as a Web App (Deploy ▸ New deployment ▸ Web app):
+ *   - Execute as: Me
+ *   - Who has access: Anyone
+ *
+ * Required Script Properties (Project Settings ▸ Script properties):
+ *   - RESEND_API_KEY : starts with "re_..." (from resend.com)
+ *   - FROM_EMAIL     : e.g. hello@saluto.space
+ * Optional Script Properties:
+ *   - REPLY_TO       : real human email for hosts who hit reply
+ *                      (defaults to FROM_EMAIL if not set)
  */
 
 // ───── CONFIG ──────────────────────────────────────────────────────────────
@@ -12,7 +20,8 @@ const SHEET_ID = 'REPLACE_WITH_YOUR_SHEET_ID'; // the long string in the Sheet U
 const TIMEZONE = 'Europe/London';              // change if needed
 const VISITORS_TAB = 'Visitors';
 const HOSTS_TAB = 'Hosts';
-const COMPANY_NAME = 'Gen II';                 // shown in email signature
+const COMPANY_NAME = 'Gen II';                 // shown in email body/signature
+const FROM_NAME = 'Saluto';                    // shown as the sender name
 // ───────────────────────────────────────────────────────────────────────────
 
 // Visitors columns: Name | Phone | Reason | Vehicle Reg | Host | Date | Arrival | Departure
@@ -101,7 +110,7 @@ function signIn(body) {
 
   const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(VISITORS_TAB);
   // Order MUST match COL: Name | Phone | Reason | Vehicle | Host | Date | Arrival | Departure
-  // Prefix phone with apostrophe so Sheets keeps leading zeros and treats as text.
+  // Prefix phone with apostrophe so Sheets treats it as text (preserves leading zeros).
   sheet.appendRow([name, "'" + phone, reason, vehicle, host, dateStr, timeStr, '']);
 
   const emailSent = notifyHost(host, name, phone, reason, vehicle, timeStr);
@@ -129,7 +138,7 @@ function signOut(body) {
     const rowName = String(r[COL.NAME] || '').trim().toLowerCase();
     const departure = String(r[COL.DEPARTURE] || '').trim();
     if (rowName === name.toLowerCase() && rowDate === today && !departure) {
-      targetRow = i + 2; // +2 because sheet is 1-indexed and we skipped header
+      targetRow = i + 2;
       break;
     }
   }
@@ -139,13 +148,18 @@ function signOut(body) {
   }
 
   const timeStr = Utilities.formatDate(new Date(), TIMEZONE, 'HH:mm');
-  // Departure is column index 7 → sheet column H (8)
   sheet.getRange(targetRow, COL.DEPARTURE + 1).setValue(timeStr);
   return { ok: true };
 }
 
-// ───── Email ───────────────────────────────────────────────────────────────
+// ───── Email (Resend → MailApp fallback) ──────────────────────────────────
 
+/**
+ * Sends the host an arrival notification.
+ * Tries Resend first (proper SPF/DKIM/DMARC, from your domain).
+ * Falls back to MailApp.sendEmail if Resend is unavailable, so a Resend
+ * outage never blocks a sign-in.
+ */
 function notifyHost(hostName, visitorName, phone, reason, vehicle, arrivalTime) {
   try {
     const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(HOSTS_TAB);
@@ -161,7 +175,7 @@ function notifyHost(hostName, visitorName, phone, reason, vehicle, arrivalTime) 
     const firstName = hostName.split(' ')[0];
     const subject = `${visitorName} has arrived at reception`;
     const vehicleLine = vehicle ? `\n    Vehicle:  ${vehicle}` : '';
-    const body =
+    const plainBody =
 `Hi ${firstName},
 
 Your visitor has just signed in at reception:
@@ -171,14 +185,105 @@ Your visitor has just signed in at reception:
     Reason:   ${reason}${vehicleLine}
     Arrived:  ${arrivalTime}
 
-— ${COMPANY_NAME}`;
+— ${COMPANY_NAME} Reception
+Powered by Saluto · saluto.space`;
 
-    MailApp.sendEmail({ to: email, subject, body });
+    const htmlBody = buildHtmlEmail({
+      firstName, visitorName, phone, reason, vehicle, arrivalTime,
+    });
+
+    // Try Resend first
+    const resendOk = sendViaResend({
+      to: email,
+      subject,
+      text: plainBody,
+      html: htmlBody,
+    });
+    if (resendOk) return true;
+
+    // Fallback: MailApp (sends from your Google account)
+    Logger.log('Resend failed, falling back to MailApp for ' + email);
+    MailApp.sendEmail({ to: email, subject, body: plainBody, htmlBody });
     return true;
+
   } catch (err) {
     console.error('notifyHost failed:', err);
     return false;
   }
+}
+
+/** POSTs to Resend's API. Returns true on 200, false otherwise. */
+function sendViaResend({ to, subject, text, html }) {
+  const props = PropertiesService.getScriptProperties();
+  const apiKey = props.getProperty('RESEND_API_KEY');
+  const fromEmail = props.getProperty('FROM_EMAIL');
+  const replyTo = props.getProperty('REPLY_TO') || fromEmail;
+
+  if (!apiKey || !fromEmail) {
+    Logger.log('Resend not configured (missing RESEND_API_KEY or FROM_EMAIL).');
+    return false;
+  }
+
+  const payload = {
+    from: `${FROM_NAME} <${fromEmail}>`,
+    to: [to],
+    subject,
+    text,
+    html,
+  };
+  // Only set reply_to if it actually differs from the From address.
+  if (replyTo && replyTo.toLowerCase() !== fromEmail.toLowerCase()) {
+    payload.reply_to = replyTo;
+  }
+
+  try {
+    const res = UrlFetchApp.fetch('https://api.resend.com/emails', {
+      method: 'post',
+      contentType: 'application/json',
+      headers: { Authorization: 'Bearer ' + apiKey },
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true,
+    });
+    const code = res.getResponseCode();
+    if (code >= 200 && code < 300) {
+      Logger.log('Resend OK → ' + to);
+      return true;
+    }
+    Logger.log('Resend error ' + code + ': ' + res.getContentText());
+    return false;
+  } catch (err) {
+    Logger.log('Resend request threw: ' + err);
+    return false;
+  }
+}
+
+/** Simple branded HTML version of the host email. */
+function buildHtmlEmail({ firstName, visitorName, phone, reason, vehicle, arrivalTime }) {
+  const safe = (s) => String(s || '').replace(/[<>&]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]));
+  const vehicleRow = vehicle
+    ? `<tr><td style="padding:6px 0;color:#6B6B6B;width:90px;">Vehicle</td><td style="padding:6px 0;color:#0F172A;font-weight:500;">${safe(vehicle)}</td></tr>`
+    : '';
+
+  return `<!doctype html>
+<html><body style="margin:0;padding:24px;background:#F4F7FA;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#0F172A;">
+  <table cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:520px;margin:0 auto;background:#fff;border:1px solid #E2E8F0;border-radius:12px;">
+    <tr><td style="padding:28px 32px;">
+      <p style="margin:0 0 8px;font-size:12px;letter-spacing:0.16em;text-transform:uppercase;color:#00A7E1;font-weight:600;">Reception</p>
+      <h1 style="margin:0 0 20px;font-size:22px;line-height:1.3;color:#0F172A;font-weight:700;">Your visitor has arrived</h1>
+      <p style="margin:0 0 20px;font-size:15px;line-height:1.55;color:#404040;">Hi ${safe(firstName)}, ${safe(visitorName)} has just signed in at reception.</p>
+      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="font-size:14px;border-top:1px solid #EDF2F7;margin-top:8px;">
+        <tr><td style="padding:14px 0 6px;color:#6B6B6B;width:90px;">Visitor</td><td style="padding:14px 0 6px;color:#0F172A;font-weight:500;">${safe(visitorName)}</td></tr>
+        <tr><td style="padding:6px 0;color:#6B6B6B;">Phone</td><td style="padding:6px 0;color:#0F172A;font-weight:500;">${safe(phone)}</td></tr>
+        <tr><td style="padding:6px 0;color:#6B6B6B;">Reason</td><td style="padding:6px 0;color:#0F172A;font-weight:500;">${safe(reason)}</td></tr>
+        ${vehicleRow}
+        <tr><td style="padding:6px 0 14px;color:#6B6B6B;">Arrived</td><td style="padding:6px 0 14px;color:#0F172A;font-weight:500;">${safe(arrivalTime)}</td></tr>
+      </table>
+    </td></tr>
+    <tr><td style="padding:16px 32px;border-top:1px solid #EDF2F7;font-size:12px;color:#6B6B6B;">
+      ${safe(COMPANY_NAME)} Reception · powered by <a href="https://saluto.space" style="color:#00A7E1;text-decoration:none;">Saluto</a>
+    </td></tr>
+  </table>
+</body></html>`;
 }
 
 // ───── Helpers ─────────────────────────────────────────────────────────────
@@ -191,8 +296,7 @@ function jsonOut(obj) {
 
 /**
  * Run this once after pasting the script.
- * Safe to re-run — it inserts any missing columns (Phone, Vehicle Reg) into
- * existing Visitors tabs without disturbing the rows you already have.
+ * Safe to re-run — inserts any missing columns without disturbing existing rows.
  */
 function setupSheet() {
   const ss = SpreadsheetApp.openById(SHEET_ID);
@@ -213,23 +317,19 @@ function setupSheet() {
   if (!v) v = ss.insertSheet(VISITORS_TAB);
 
   if (v.getLastRow() === 0) {
-    // Brand-new sheet — write full headers
     v.appendRow(['Name', 'Phone', 'Reason', 'Vehicle Reg', 'Host', 'Date', 'Arrival', 'Departure']);
     v.getRange('A1:H1').setFontWeight('bold');
     v.setFrozenRows(1);
-    v.getRange('B:B').setNumberFormat('@'); // store phone as plain text
+    v.getRange('B:B').setNumberFormat('@');
     return;
   }
 
-  // Existing sheet — insert any missing columns. Re-read headers between
-  // operations because column positions shift after each insert.
   function headersLower() {
     return v.getRange(1, 1, 1, v.getLastColumn())
       .getValues()[0]
       .map(s => String(s).trim().toLowerCase());
   }
 
-  // Insert Phone right after Name (column B / position 2) if missing.
   if (headersLower().indexOf('phone') === -1) {
     v.insertColumnBefore(2);
     v.getRange(1, 2).setValue('Phone').setFontWeight('bold');
@@ -237,13 +337,38 @@ function setupSheet() {
     Logger.log('Added Phone column.');
   }
 
-  // Insert Vehicle Reg right after Reason if missing.
   let hdrs = headersLower();
   if (hdrs.indexOf('vehicle reg') === -1) {
     const reasonIdx = hdrs.indexOf('reason');
-    const insertAt = reasonIdx >= 0 ? reasonIdx + 2 : 4; // 1-indexed sheet position
+    const insertAt = reasonIdx >= 0 ? reasonIdx + 2 : 4;
     v.insertColumnBefore(insertAt);
     v.getRange(1, insertAt).setValue('Vehicle Reg').setFontWeight('bold');
     Logger.log('Added Vehicle Reg column.');
   }
+}
+
+/**
+ * Run this once to verify your Resend setup.
+ * Sends a test email to the address you put in TEST_TO below.
+ * Check the Apps Script logs (View ▸ Logs) for the result.
+ */
+function testResend() {
+  const TEST_TO = 'your-own-email@example.com'; // ← change this before running
+
+  const html = buildHtmlEmail({
+    firstName: 'Test',
+    visitorName: 'Saluto Test Visitor',
+    phone: '07000 000 000',
+    reason: 'Verifying email delivery',
+    vehicle: 'TEST 1',
+    arrivalTime: Utilities.formatDate(new Date(), TIMEZONE, 'HH:mm'),
+  });
+
+  const ok = sendViaResend({
+    to: TEST_TO,
+    subject: 'Saluto · test email',
+    text: 'If you can read this, Resend is working.',
+    html,
+  });
+  Logger.log(ok ? 'Test email sent. Check the inbox.' : 'Test email FAILED. See logs above.');
 }

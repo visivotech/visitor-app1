@@ -355,26 +355,26 @@ button.ghost:hover { border-color: var(--gen2-grey-soft); background: var(--surf
   bottom: 110px; /* sits comfortably above the footer */
   display: inline-flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: 12px;
-  text-decoration: none;
   color: var(--gen2-grey-soft);
   z-index: 10;
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
-.powered-by:hover { opacity: 0.75; transform: translateY(-1px); }
 .powered-by-label {
   font-size: 14px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   font-weight: 600;
   color: var(--gen2-grey-soft);
-  padding-left: 2px;
 }
 .powered-by img {
-  height: 200px;
+  height: 180px;
   width: auto;
   display: block;
+  pointer-events: none;
 }
 
 /* ───── Footer ──────────────────────────────────────────────── */
@@ -399,6 +399,6 @@ button.ghost:hover { border-color: var(--gen2-grey-soft); background: var(--surf
     left: 20px;
     bottom: 80px;
   }
-  .powered-by img { height: 130px; }
+  .powered-by img { height: 110px; }
   .powered-by-label { font-size: 11px; }
 }

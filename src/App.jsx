@@ -67,16 +67,10 @@ export default function App() {
         )}
       </main>
 
-      <a
-        href="https://saluto.space"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="powered-by"
-        aria-label="Powered by Saluto"
-      >
+      <div className="powered-by" aria-label="Powered by Saluto">
         <span className="powered-by-label">Powered by</span>
         <img src="/saluto.png" alt="Saluto" />
-      </a>
+      </div>
 
       <footer className="footer">
         In case of emergency follow the nearest exit signs

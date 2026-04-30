@@ -372,7 +372,7 @@ button.ghost:hover { border-color: var(--gen2-grey-soft); background: var(--surf
   padding-left: 2px;
 }
 .powered-by img {
-  height: 180px;
+  height: 200px;
   width: auto;
   display: block;
 }
@@ -399,6 +399,6 @@ button.ghost:hover { border-color: var(--gen2-grey-soft); background: var(--surf
     left: 20px;
     bottom: 80px;
   }
-  .powered-by img { height: 110px; }
+  .powered-by img { height: 130px; }
   .powered-by-label { font-size: 11px; }
 }
